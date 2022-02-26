@@ -171,6 +171,7 @@ class CodeWriter:
 def main():
 
     if len(sys.argv) != 2 or sys.argv[1][-3:] != ".vm":
+        print("(.vm files should be in same directory as this .py file)")
         print("Run from command line with .vm filename as args")
         print("like this: 'python " + os.path.basename(__file__) + " [file.vm]'")
 
