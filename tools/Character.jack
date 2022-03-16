@@ -1,0 +1,112 @@
+	class Character{
+		field int x,y;
+		field int vx, vy;
+	
+		constructor Character new() {
+			let x = 100;
+			let y = 50;
+			let vx = 0;
+			let vy = 0;
+			return this;
+		}
+		
+		method void update() {
+			do erase();
+			let vy = vy - 1;
+			let x = x + vx;
+			let y = y + vy;
+			if (x < 2) {
+				let x = 2;
+			}
+			if (x > 510) {
+				let x = 510;
+			}
+			if (y < 50) {
+				let y = 50; 
+			}
+			if (y > 200) {
+				let y = 200;
+			}
+			if (vx > 0) {
+				let vx = vx - 1;
+			}
+			if (vx < 0) {
+				let vx = vx + 1;
+			}
+			return;
+		}
+		
+		method void dispose() {
+			do Memory.deAlloc(this);
+			return;
+		}
+		
+		method void jump(){
+			let vy = 10;
+			return;
+		}
+		method void move_right() {
+			let vx = 5;
+			return;
+		}
+		method void move_left() {
+			let vx = -5;
+			return;
+		}
+		
+		// screen is 256 rows of 512 pixels each
+		// 512 pixels = 512/16 = 32 Memory locations
+		method void draw() {
+			var int location;
+			let location = ( 255 - y*32) + (x/16);
+			do draw_first(location);
+			return;
+		}
+		//need two seperate functions, so you dont need to keep track of locations
+		method void draw_first(int location) {
+			var int memAddress;
+			let memAddress = 16384+location;
+			do Memory.poke(memAddress+0, 1984);
+			do Memory.poke(memAddress+32, 7200);
+			do Memory.poke(memAddress+64, 1312);
+			do Memory.poke(memAddress+96, 1056);
+			do Memory.poke(memAddress+128, 3024);
+			do Memory.poke(memAddress+160, 13932);
+			do Memory.poke(memAddress+192, 30318);
+			do Memory.poke(memAddress+224, 28662);
+			do Memory.poke(memAddress+256, 28662);
+			do Memory.poke(memAddress+288, 28662);
+			do Memory.poke(memAddress+320, 4080);
+			do Memory.poke(memAddress+352, 3696);
+			do Memory.poke(memAddress+384, 3696);
+			do Memory.poke(memAddress+416, 14364);
+			do Memory.poke(memAddress+448, 30750);
+			do Memory.poke(memAddress+480, 30750);
+			return;
+		}
+		
+		//should draw white at old location.
+		method void erase() {
+			var int location;
+			var int memAddress; 
+			let location = ( 255 - y*32) + (x/16);
+			let memAddress = 16384+location;
+			do Memory.poke(memAddress+0, 0);
+			do Memory.poke(memAddress+32, 0);
+			do Memory.poke(memAddress+64, 0);
+			do Memory.poke(memAddress+96, 0);
+			do Memory.poke(memAddress+128, 0);
+			do Memory.poke(memAddress+160, 0);
+			do Memory.poke(memAddress+192, 0);
+			do Memory.poke(memAddress+224, 0);
+			do Memory.poke(memAddress+256, 0);
+			do Memory.poke(memAddress+288, 0);
+			do Memory.poke(memAddress+320, 0);
+			do Memory.poke(memAddress+352, 0);
+			do Memory.poke(memAddress+384, 0);
+			do Memory.poke(memAddress+416, 0);
+			do Memory.poke(memAddress+448, 0);
+			do Memory.poke(memAddress+480, 0);
+			return;
+		}
+	}
