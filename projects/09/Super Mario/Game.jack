@@ -1,8 +1,10 @@
 	class Game {
 		field Character character;
+		field Goomba goomba;
 		
 		constructor Game new() {
 			let character = Character.new();
+			let goomba = Goomba.new();
 			return this;
 		}
 		
@@ -16,7 +18,7 @@
 					let key = Keyboard.keyPressed();
 					do update();
 				}
-				if (key = 140) {let done = true;}				//q = quit key, might rebind to sec or something
+				if (key = 135) {let done = true;}				//end key
 				if (key = 32) {do character.jump();} 			//space
 				if (key = 132) {do character.move_right();}		// right arrow
 				if (key = 130) {do character.move_left();} 		// left arrow
@@ -24,28 +26,84 @@
 					let key = Keyboard.keyPressed();
 					do update();
 				}
+				if (character.alive() = 0) {
+				do Output.moveCursor(7, 29);
+				do Output.printString("Game Over");
+				let done = true;
+				}
 			}
 			return;
 		}
-		
-		// can have a list of objects needing to be updated in run(),
-		//then just call update on every element of that list or something
+
 		method void update() {
-			do character.erase();
-			do character.update();
+			if (goomba.alive() = 1) {
+				do goomba.update();
+			}
+			if (character.alive() = 1) {
+				do character.update();
+			}
+			do check_collision();
+			do check_win();
 			do draw(); 
 			do Sys.wait(33);
 			return;
 		}
 		
 		method void draw() {
+			do draw_const();
 			do character.draw();
+			do goomba.draw();
 			return;
 		}
 		
 		method void dispose() {
 			do character.dispose();
+			do goomba.dispose();
 			do Memory.deAlloc(this);
+			return;
+		}
+		
+		method void check_win() {
+			var int score;
+			if (character.get_x() > 500){
+				if (goomba.alive() = 1) {
+					do goomba.kill();
+				}
+				if (goomba.alive() = 0) {
+					let score = 100;
+				}
+				do Output.moveCursor(12, 10);
+				do Output.printString("Congrats you won, here was your score:");
+				do Output.printInt(character.get_y() * 8);
+				do character.kill();
+				do dispose();
+			}
+			return;
+		}
+		
+		method void check_collision(){
+			var int min;
+			var int max;
+			let min = goomba.get_x() - 10;
+			let max = goomba.get_x() + 10;
+			if (character.get_x() > min & character.get_x() < max){
+				if (character.get_y() > goomba.get_y()) {
+					do goomba.kill();
+				} 
+				if (character.get_y() = 50 & character.get_x() = goomba.get_x()) {
+					do character.kill();
+				}
+			}
+			return;
+		}
+		
+		method void draw_const() {
+			do Screen.drawLine(160, 190, 192, 190);
+			do Screen.drawLine(192, 160, 224, 160);
+			do Screen.drawLine(224, 128, 256, 128);
+			do Screen.drawLine(505, 200, 505, 100);
+			do Screen.drawLine(500, 200, 500, 100);
+			do Screen.drawCircle(502, 92, 3);
 			return;
 		}
 		
@@ -82,28 +140,6 @@
 			do Memory.poke(memAddress+416, 0);
 			do Memory.poke(memAddress+448, 0);
 			do Memory.poke(memAddress+480, 0);
-			return;
-		}
-		
-		method void draw_goomba(int location) {
-			var int memAddress;
-			let memAddress = 16384+location;
-			do Memory.poke(memAddress+0, 0);
-			do Memory.poke(memAddress+32, 0);
-			do Memory.poke(memAddress+64, 0);
-			do Memory.poke(memAddress+96, 384);
-			do Memory.poke(memAddress+128, 576);
-			do Memory.poke(memAddress+160, 1056);
-			do Memory.poke(memAddress+192, 2064);
-			do Memory.poke(memAddress+224, 5736);
-			do Memory.poke(memAddress+256, 8196);
-			do Memory.poke(memAddress+288, 18402);
-			do Memory.poke(memAddress+320, 10836);
-			do Memory.poke(memAddress+352, 4104);
-			do Memory.poke(memAddress+384, 4080);
-			do Memory.poke(memAddress+416, 3120);
-			do Memory.poke(memAddress+448, 2064);
-			do Memory.poke(memAddress+480, 14364);
 			return;
 		}
 	}

@@ -1,96 +1,123 @@
-function Character.new 0
-push constant 4
+function Goomba.new 0
+push constant 5
 call Memory.alloc 1
 pop pointer 0
-push constant 100
+push constant 1
+pop this 4
+push constant 400
 pop this 0
 push constant 50
 pop this 1
-push constant 0
+push constant 5
 pop this 2
 push constant 0
 pop this 3
 push pointer 0
 return
-function Character.update 0
+function Goomba.get_x 0
+push argument 0
+pop pointer 0
+push this 0
+return
+function Goomba.get_y 0
+push argument 0
+pop pointer 0
+push this 1
+return
+function Goomba.alive 0
+push argument 0
+pop pointer 0
+push this 4
+return
+function Goomba.kill 0
+push argument 0
+pop pointer 0
+push constant 0
+pop this 4
+push constant 0
+return
+function Goomba.update 0
 push argument 0
 pop pointer 0
 push pointer 0
-call Character.erase 1
+call Goomba.erase 1
 pop temp 0
-push this 3
-push constant 1
-sub
-pop this 3
-push this 0
-push this 2
-add
-pop this 0
 push this 1
-push this 3
-add
-pop this 1
-push this 0
-push constant 2
+push constant 50
 lt
 if-goto IF_TRUE0
 goto IF_FALSE0
 label IF_TRUE0
-push constant 2
-pop this 0
+push constant 50
+pop this 1
 label IF_FALSE0
 push this 0
-push constant 510
-gt
+push constant 380
+lt
 if-goto IF_TRUE1
 goto IF_FALSE1
 label IF_TRUE1
-push constant 510
+push constant 380
 pop this 0
+push constant 5
+pop this 2
 label IF_FALSE1
-push this 1
-push constant 50
-lt
+push this 0
+push constant 450
+gt
 if-goto IF_TRUE2
 goto IF_FALSE2
 label IF_TRUE2
-push constant 50
-pop this 1
+push constant 450
+pop this 0
+push constant 5
+neg
+pop this 2
 label IF_FALSE2
-push this 1
-push constant 200
+push this 0
+push this 2
+add
+pop this 0
+push this 2
+push constant 0
 gt
 if-goto IF_TRUE3
 goto IF_FALSE3
 label IF_TRUE3
-push constant 200
-pop this 1
-label IF_FALSE3
-push this 2
-push constant 0
+push this 0
+push constant 450
 gt
 if-goto IF_TRUE4
 goto IF_FALSE4
 label IF_TRUE4
-push this 2
-push constant 1
-sub
+push constant 450
+pop this 0
+push constant 5
+neg
 pop this 2
 label IF_FALSE4
+label IF_FALSE3
 push this 2
 push constant 0
 lt
 if-goto IF_TRUE5
 goto IF_FALSE5
 label IF_TRUE5
-push this 2
-push constant 1
-add
+push this 0
+push constant 380
+lt
+if-goto IF_TRUE6
+goto IF_FALSE6
+label IF_TRUE6
+push constant 380
+pop this 0
+push constant 5
 pop this 2
+label IF_FALSE6
 label IF_FALSE5
 push constant 0
 return
-function Character.dispose 0
+function Goomba.dispose 0
 push argument 0
 pop pointer 0
 push pointer 0
@@ -98,29 +125,7 @@ call Memory.deAlloc 1
 pop temp 0
 push constant 0
 return
-function Character.jump 0
-push argument 0
-pop pointer 0
-push constant 10
-pop this 3
-push constant 0
-return
-function Character.move_right 0
-push argument 0
-pop pointer 0
-push constant 5
-pop this 2
-push constant 0
-return
-function Character.move_left 0
-push argument 0
-pop pointer 0
-push constant 5
-neg
-pop this 2
-push constant 0
-return
-function Character.draw 1
+function Goomba.draw 1
 push argument 0
 pop pointer 0
 push constant 255
@@ -135,11 +140,11 @@ add
 pop local 0
 push pointer 0
 push local 0
-call Character.draw_first 2
+call Goomba.draw_goomba 2
 pop temp 0
 push constant 0
 return
-function Character.draw_first 1
+function Goomba.draw_goomba 1
 push argument 0
 pop pointer 0
 push constant 16384
@@ -149,102 +154,102 @@ pop local 0
 push local 0
 push constant 0
 add
-push constant 1984
+push constant 0
 call Memory.poke 2
 pop temp 0
 push local 0
 push constant 32
 add
-push constant 7200
+push constant 0
 call Memory.poke 2
 pop temp 0
 push local 0
 push constant 64
 add
-push constant 1312
+push constant 0
 call Memory.poke 2
 pop temp 0
 push local 0
 push constant 96
 add
-push constant 1056
+push constant 384
 call Memory.poke 2
 pop temp 0
 push local 0
 push constant 128
 add
-push constant 3024
+push constant 576
 call Memory.poke 2
 pop temp 0
 push local 0
 push constant 160
 add
-push constant 13932
+push constant 1056
 call Memory.poke 2
 pop temp 0
 push local 0
 push constant 192
 add
-push constant 30318
+push constant 2064
 call Memory.poke 2
 pop temp 0
 push local 0
 push constant 224
 add
-push constant 28662
+push constant 5736
 call Memory.poke 2
 pop temp 0
 push local 0
 push constant 256
 add
-push constant 28662
+push constant 8196
 call Memory.poke 2
 pop temp 0
 push local 0
 push constant 288
 add
-push constant 28662
+push constant 18402
 call Memory.poke 2
 pop temp 0
 push local 0
 push constant 320
 add
-push constant 4080
+push constant 10836
 call Memory.poke 2
 pop temp 0
 push local 0
 push constant 352
 add
-push constant 3696
+push constant 4104
 call Memory.poke 2
 pop temp 0
 push local 0
 push constant 384
 add
-push constant 3696
+push constant 4080
 call Memory.poke 2
 pop temp 0
 push local 0
 push constant 416
 add
-push constant 14364
+push constant 3120
 call Memory.poke 2
 pop temp 0
 push local 0
 push constant 448
 add
-push constant 30750
+push constant 2064
 call Memory.poke 2
 pop temp 0
 push local 0
 push constant 480
 add
-push constant 30750
+push constant 14364
 call Memory.poke 2
 pop temp 0
 push constant 0
 return
-function Character.erase 2
+function Goomba.erase 2
 push argument 0
 pop pointer 0
 push constant 255

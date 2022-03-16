@@ -1,20 +1,31 @@
 	class Character{
 		field int x,y;
 		field int vx, vy;
+		field int alive;
 	
 		constructor Character new() {
-			let x = 100;
+			let alive = 1;
+			let x = 15;
 			let y = 50;
 			let vx = 0;
 			let vy = 0;
 			return this;
 		}
-		
+		method int get_x() {
+			return x;
+		}
+		method int get_y() {
+			return y;
+		}
+		method int alive() {
+			return alive;
+		}
+		method void kill() {
+			let alive = 0;
+			return;
+		}
 		method void update() {
 			do erase();
-			let vy = vy - 1;
-			let x = x + vx;
-			let y = y + vy;
 			if (x < 2) {
 				let x = 2;
 			}
@@ -24,8 +35,35 @@
 			if (y < 50) {
 				let y = 50; 
 			}
-			if (y > 200) {
+			if (y > 200) {		
 				let y = 200;
+			}
+			if (y > 51) {
+				let vy = vy - 1;
+				if (x < 192 & x > 160) {
+					if (y > 66) {
+						let vy = 0; 
+						if (y = 66){
+							let y = 66;
+						}
+					}
+				}
+				if (x < 224 & x > 192) {
+					if (y > 96) {
+						let vy = 0; 
+						if (y = 96){
+							let y = 96;
+						}
+					}
+				}
+				if (x < 256 & x > 224) {
+					if (y > 128){
+						let vy = 0; 
+						if (y = 128){
+							let y = 128;
+						}
+					}
+				}	
 			}
 			if (vx > 0) {
 				let vx = vx - 1;
@@ -33,6 +71,11 @@
 			if (vx < 0) {
 				let vx = vx + 1;
 			}
+			if (vy < -1) {
+				let vy = -1;
+			}
+			let x = x + vx;
+			let y = y + vy;
 			return;
 		}
 		
@@ -40,17 +83,16 @@
 			do Memory.deAlloc(this);
 			return;
 		}
-		
 		method void jump(){
 			let vy = 10;
 			return;
 		}
 		method void move_right() {
-			let vx = 5;
+			let vx = 6;
 			return;
 		}
 		method void move_left() {
-			let vx = -5;
+			let vx = -6;
 			return;
 		}
 		
@@ -62,7 +104,6 @@
 			do draw_first(location);
 			return;
 		}
-		//need two seperate functions, so you dont need to keep track of locations
 		method void draw_first(int location) {
 			var int memAddress;
 			let memAddress = 16384+location;
