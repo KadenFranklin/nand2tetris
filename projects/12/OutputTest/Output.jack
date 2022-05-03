@@ -18,19 +18,23 @@ class Output {
 
     // Character map for displaying characters
     static Array charMaps; 
-	static int x_loc, y_loc;
-    static Array screen;
-    static Array mask;
+    static int currentRow, currentColumn;
+    static int baseAddrX, baseAddrY, parityMod;
+    static int basePixX, basePixY;
 
     /** Initializes the screen, and locates the cursor at the screen's top-left. */
     function void init() {
-		let screen = 16384;
-        let x_loc = 0;
-        let y_loc = 0;
-        let mask = Array.new(2);
-        let mask[0] = 255;
-        let mask[1] = -1 & 255;
+        let currentRow = 0;
+        let currentColumn = 0;
+        // Address wise
+        let baseAddrX = 0;
+        let baseAddrY = 0;
+        // Pixel wise
+        let basePixX = 0;
+        let basePixY = 0;
+        let parityMod = 0;
         do Output.initMap();
+        do Output.updateBaseAddr(currentRow, currentColumn);
         return;
     }
 
@@ -42,6 +46,10 @@ class Output {
         
         // Black square, used for displaying non-printable characters.
         do Output.create(0,63,63,63,63,63,63,63,63,63,0,0);
+
+        // Assigns the bitmap for each character in the charachter set.
+        // The first parameter is the character index, the next 11 numbers
+        // are the values of each row in the frame that represents this character.
         do Output.create(32,0,0,0,0,0,0,0,0,0,0,0);          //
         do Output.create(33,12,30,30,30,12,12,0,12,12,0,0);  // !
         do Output.create(34,54,54,20,0,0,0,0,0,0,0,0);       // "
@@ -58,6 +66,7 @@ class Output {
         do Output.create(45,0,0,0,0,0,63,0,0,0,0,0);         // -
         do Output.create(46,0,0,0,0,0,0,0,12,12,0,0);        // .    
         do Output.create(47,0,0,32,48,24,12,6,3,1,0,0);      // /
+        
         do Output.create(48,12,30,51,51,51,51,51,30,12,0,0); // 0
         do Output.create(49,12,14,15,12,12,12,12,12,63,0,0); // 1
         do Output.create(50,30,51,48,24,12,6,3,51,63,0,0);   // 2
@@ -68,6 +77,7 @@ class Output {
         do Output.create(55,63,49,48,48,24,12,12,12,12,0,0); // 7
         do Output.create(56,30,51,51,51,30,51,51,51,30,0,0); // 8
         do Output.create(57,30,51,51,51,62,48,48,24,14,0,0); // 9
+        
         do Output.create(58,0,0,12,12,0,0,12,12,0,0,0);      // :
         do Output.create(59,0,0,12,12,0,0,12,12,6,0,0);      // ;
         do Output.create(60,0,0,24,12,6,3,6,12,24,0,0);      // <
@@ -75,7 +85,8 @@ class Output {
         do Output.create(62,0,0,3,6,12,24,12,6,3,0,0);       // >
         do Output.create(64,30,51,51,59,59,59,27,3,30,0,0);  // @
         do Output.create(63,30,51,51,24,12,12,0,12,12,0,0);  // ?
-        do Output.create(65,12,30,51,51,63,51,51,51,51,0,0); // A
+
+        do Output.create(65,63,63,33,33,63,63,33,33,33,0,0); // A ** TO BE FILLED **
         do Output.create(66,31,51,51,51,31,51,51,51,31,0,0); // B
         do Output.create(67,28,54,35,3,3,3,35,54,28,0,0);    // C
         do Output.create(68,15,27,51,51,51,51,51,27,15,0,0); // D
@@ -101,12 +112,14 @@ class Output {
         do Output.create(88,51,51,30,30,12,30,30,51,51,0,0); // X
         do Output.create(89,51,51,51,51,30,12,12,12,30,0,0); // Y
         do Output.create(90,63,51,49,24,12,6,35,51,63,0,0);  // Z
+
         do Output.create(91,30,6,6,6,6,6,6,6,30,0,0);          // [
         do Output.create(92,0,0,1,3,6,12,24,48,32,0,0);        // \
         do Output.create(93,30,24,24,24,24,24,24,24,30,0,0);   // ]
         do Output.create(94,8,28,54,0,0,0,0,0,0,0,0);          // ^
         do Output.create(95,0,0,0,0,0,0,0,0,0,63,0);           // _
         do Output.create(96,6,12,24,0,0,0,0,0,0,0,0);          // `
+
         do Output.create(97,0,0,0,14,24,30,27,27,54,0,0);      // a
         do Output.create(98,3,3,3,15,27,51,51,51,30,0,0);      // b
         do Output.create(99,0,0,0,30,51,3,3,51,30,0,0);        // c
@@ -133,10 +146,12 @@ class Output {
         do Output.create(120,0,0,0,51,30,12,12,30,51,0,0);     // x
         do Output.create(121,0,0,0,51,51,51,62,48,24,15,0);    // y
         do Output.create(122,0,0,0,63,27,12,6,51,63,0,0);      // z
+        
         do Output.create(123,56,12,12,12,7,12,12,12,56,0,0);   // {
         do Output.create(124,12,12,12,12,12,12,12,12,12,0,0);  // |
         do Output.create(125,7,12,12,12,56,12,12,12,7,0,0);    // }
         do Output.create(126,38,45,25,0,0,0,0,0,0,0,0);        // ~
+
 	return;
     }
 
@@ -147,7 +162,8 @@ class Output {
 
 	let map = Array.new(11);
         let charMaps[index] = map;
-		let map[0] = a;
+
+        let map[0] = a;
         let map[1] = b;
         let map[2] = c;
         let map[3] = d;
@@ -158,6 +174,7 @@ class Output {
         let map[8] = i;
         let map[9] = j;
         let map[10] = k;
+
         return;
     }
     
@@ -171,40 +188,62 @@ class Output {
         return charMaps[c];
     }
 
+    /** Update baseAddr */
+    function void updateBaseAddr(int i, int j) {
+        let baseAddrY = 11 * i * 32;
+        let baseAddrX = (j/2);
+        let basePixX = (j/2) * 16;
+        let basePixY = 11 * i;
+        if (j - ((j/2) * 2) = 0) {
+            let parityMod = 1;
+        } else {
+            let parityMod = 256;
+        }
+        return;
+    }
+
     /** Moves the cursor to the j-th column of the i-th row,
      *  and erases the character displayed there. */
     function void moveCursor(int i, int j) {
-		let x_loc = j;
-		let y_loc = i;
-		return;
+        let currentRow = i;
+        let currentColumn = j;
+        do Output.updateBaseAddr(i, j);
+
+        if (parityMod = 0) {
+            do Screen.setColor(false);
+            do Screen.drawRectangle(basePixX, basePixY, basePixX + 7, basePixY + 10);
+            do Screen.setColor(true);
+        } else {
+            do Screen.setColor(false);
+            do Screen.drawRectangle(basePixX + 8, basePixY, basePixX + 15, basePixY + 10);
+            do Screen.setColor(true);
+        }
+        return;
     }
 
     /** Displays the given character at the cursor location,
      *  and advances the cursor one column forward. */
     function void printChar(char c) {
-		var Array map;
-        var int address;
-        var int mask;
-        var int bitmap;
-        var int i;
+        var Array map;
+        var int k, temp;
+
         let map = Output.getMap(c);
-        let address = (y_loc*32*11) + (x_loc/2);
-        let mask = x_loc & 1;
-        let i = 0;
-        while( i < 11 ) {
-            let bitmap = map[i];
-            if( mask = 1 ) {
-                let bitmap = bitmap * 256;
+        let k = 0;
+        while (k < 12) {
+            let temp = Memory.peek(16384 + baseAddrX + baseAddrY + ( k * 32 ));
+            let temp = temp | (map[k]*parityMod);
+            do Memory.poke(16384 + baseAddrX + baseAddrY + ( k * 32 ), temp);
+            let k = k+1;
+        }
+
+        if (currentColumn < 63) {
+            do Output.moveCursor(currentRow, currentColumn + 1);
+        } else {
+            if (currentRow < 22 ) {
+                do Output.moveCursor(currentRow+1, 0);
+            } else {
+                do Output.moveCursor(0,0);
             }
-            let screen[address] = screen[address] & mask[mask] | bitmap;
-            let address = address + 32;
-            let i = i + 1;
-        }
-        if( x_loc = 63 ) {
-            do Output.println();
-        }
-        else {
-            let x_loc = x_loc + 1;
         }
         return;
     }
@@ -212,11 +251,11 @@ class Output {
     /** displays the given string starting at the cursor location,
      *  and advances the cursor appropriately. */
     function void printString(String s) {
-        var int i;
-        let i = 0;
-        while( i < s.length() ) {
-            do Output.printChar(s.charAt(i));
-            let i = i + 1;
+        var int k;
+        let k = 0;
+        while (k < s.length()) {
+            do Output.printChar(s.charAt(k));
+            let k = k + 1;
         }
         return;
     }
@@ -225,42 +264,42 @@ class Output {
      *  and advances the cursor appropriately. */
     function void printInt(int i) {
         var String s;
-        let s = String.new(10);
+
+        let s = String.new(7);
         do s.setInt(i);
         do Output.printString(s);
-        do s.dispose();
         return;
     }
+
+    /** Converts a non-negative number to a string */
+    /*
+    function String intToString(int i) {
+        var int digit;
+        var char c;
+        var String res;
+        let digit = n - ((n/10)*10);
+        let c = digit + 48;
+        let res = String.new(1);
+        do res.appendChar(c);
+
+        if (i<10) {
+            return res;
+        } else {
+            return (Output.intToString(i/10)).appendChar(c);
+        }
+    }
+    */
 
     /** Advances the cursor to the beginning of the next line. */
     function void println() {
-        let x_loc = 0;
-        if( y_loc < 22 ) {
-            let y_loc = y_loc + 1;
-        }
-        else {
-            do Output.scroll();
-        }
+        do Output.moveCursor(currentRow + 1, 0);
         return;
     }
-	
-	function void scroll() {
-		let y_loc = y_loc + 1;
-		return;
-	}
 
     /** Moves the cursor one column back. */
     function void backSpace() {
-        if( x_loc = 0 ) {
-            if( ~(y_loc = 0) ) {
-                let x_loc = 63;
-                let y_loc = y_loc - 1;
-            }
-        }
-        else {
-            let x_loc = x_loc - 1;
-        }
-        
+        do Output.moveCursor(currentRow, Math.max(0, currentColumn - 1));
         return;
     }
 }
+

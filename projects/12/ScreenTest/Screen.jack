@@ -51,7 +51,7 @@
         var int mask;
 
         let address = (y*32) + (x/16);
-        let mask = Math.two_pwr(x & 15);
+        let mask = Math.twoToThe(x & 15);
 
         if( color ) {
             let screen[address] = screen[address] | mask;
